@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const slugify = require('slugify');
 const BootcampSchema = new mongoose.Schema(
   {
     name: {
@@ -99,5 +99,12 @@ const BootcampSchema = new mongoose.Schema(
     }
   }
 );
-
+// Mongoose Middlewares
+    // Create a slug from the name
+        // pre -> Runs before save. Use regular function as it needs to use this keyword to access the BootcampSchema keys. **DO NOT USE ARROW FUNCTION**. Since it is middleware
+            // it needs to run next() to let the other middleware continue to run.
+BootcampSchema.pre('save', function(next) {
+   this.slug = slugify(this.name, { lower: true });
+    next();
+});
 module.exports = mongoose.model('Bootcamp', BootcampSchema);
