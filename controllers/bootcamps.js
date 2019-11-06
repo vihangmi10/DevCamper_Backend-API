@@ -15,7 +15,7 @@ const getBootcamps = async (req, res, next) => {
                 data: bootcamps
             })
     } catch (err) {
-        next(new ErrorResponse(`Unable to get all boot camps`, 404));
+        next(err);
     }
 };
 
@@ -30,7 +30,7 @@ const getSingleBootcamp = async (req, res, next) => {
         }
         res.status(200).json({ success: true, data: bootcamp });
     } catch (err) {
-        next(new ErrorResponse(`Unable to get boot camp for id ${req.params.id}`, 404));
+        next(err);
     }
 };
 
@@ -67,7 +67,7 @@ const updateBootcamp = async (req, res, next) => {
         res.status(200).json({ success: true, data: bootcamp });
 
     } catch (err) {
-        next(new ErrorResponse(`Unable to update the boot camp for id ${req.params.id}`, 400))
+        next(err);
     }
 
 };
@@ -83,7 +83,7 @@ const deleteBootcamp = async (req, res, next) => {
         }
         res.status(200).json({ success: true, data: {} });
     } catch (err) {
-        next(new ErrorResponse(`Unable to delete the boot camp for id ${req.params.id}`, 400))
+        next(err);
     }
 };
 
