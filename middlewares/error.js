@@ -8,6 +8,10 @@ const errorHandler = (err, req, res, next) => {
         const message = `Unable to get boot camp for id ${err.value}`;
         error = new ErrorResponse(message, 404);
     }
+    if(err.code === 11000) {
+        const message = 'Duplicate field values entered';
+        error = new ErrorResponse(message, 400);
+    }
     res.status(error.statusCode || 500).json( { success: false, error: error.message || 'Server Error'});
 };
 

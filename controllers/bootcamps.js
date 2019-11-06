@@ -47,7 +47,7 @@ const createBootcamp = async (req, res, next) => {
                 data: bootcamp
             });
     } catch (err) {
-        next(new ErrorResponse(`Unable to create boot camp`, 400));
+        next(err);
     }
 
 };
