@@ -7,6 +7,7 @@ const geoCode = require('../utils/geocoder');
 // @route   GET /api/v1/bootcamps
 // @access  Public
 // @query allowed  ?careers[in]=Business , averageCost[gte]=10000
+// Also get selected data fields from database if specified in the URL query params.
 const getBootcamps = asyncHandler(async (req, res, next) => {
     // Advance filtering of queries
         // lte lt (Less than equal , less than)
@@ -14,10 +15,23 @@ const getBootcamps = asyncHandler(async (req, res, next) => {
         // location.city
     // Getting it from query param;
     let query;
-    let queryStr = JSON.stringify(req.query);
+    // Do not consider certain query params like select as an advance filter
+    // copy query params into reqQuery
+    const reqQuery = { ... req.query };
+    // Remove query params like select from reqQuery
+    const removeFields = ['select'];
+    removeFields.forEach(param => delete reqQuery[param]);
+
+    let queryStr = JSON.stringify(reqQuery);
     queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`); // attaching a $ sign before gt,gte,lt,lte,in
     query =  Bootcamp.find(JSON.parse(queryStr)); // Mongo query { $gt: [ "$qty", 250 ] }
 
+    // query param will be select=name,description,email,phone
+    if(req.query.select) {
+        // select fields to be displayed as space separated values {name description email phone}
+        const fields = req.query.select.split(',').join(' ');
+        query = query.select(fields);
+    }
     const bootcamps = await query;
     res
         .status(200)
