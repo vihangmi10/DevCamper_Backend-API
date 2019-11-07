@@ -9,6 +9,7 @@ const geoCode = require('../utils/geocoder');
 // @query allowed  ?careers[in]=Business , averageCost[gte]=10000
 // Get selected data fields from database if specified in the URL query params.
 // Sort bootcamps with specified fields.
+// add pagination based on page number and limit specified in the query params.
 const getBootcamps = asyncHandler(async (req, res, next) => {
     // Advance filtering of queries
         // lte lt (Less than equal , less than)
@@ -20,7 +21,7 @@ const getBootcamps = asyncHandler(async (req, res, next) => {
     // copy query params into reqQuery
     const reqQuery = { ... req.query };
     // Remove query params like select and sort if present from reqQuery
-    const removeFields = ['select', 'sort'];
+    const removeFields = ['select', 'sort', 'page', 'limit'];
     removeFields.forEach(param => delete reqQuery[param]);
 
     let queryStr = JSON.stringify(reqQuery);
@@ -39,12 +40,34 @@ const getBootcamps = asyncHandler(async (req, res, next) => {
         const sortBy = req.query.sort.split(',').join(' ');
         query = query.sort(sortBy);
     }
+    // Adding pagination
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const total = await Bootcamp.countDocuments();
+    query = query.skip(startIndex).limit(limit);
     const bootcamps = await query;
+    // Pagination to let front end know if next page or previous page is present
+    let pagination = {};
+    if(endIndex < total) {
+        pagination.next = {
+            page: page + 1,
+            limit
+        }
+    }
+    if(startIndex > 0) {
+        pagination.previous = {
+            page: page - 1,
+            limit
+        }
+    }
     res
         .status(200)
         .json({
             success: true,
             count: bootcamps.length,
+            pagination,
             data: bootcamps
         });
 });
