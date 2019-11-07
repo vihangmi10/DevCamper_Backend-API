@@ -7,7 +7,8 @@ const geoCode = require('../utils/geocoder');
 // @route   GET /api/v1/bootcamps
 // @access  Public
 // @query allowed  ?careers[in]=Business , averageCost[gte]=10000
-// Also get selected data fields from database if specified in the URL query params.
+// Get selected data fields from database if specified in the URL query params.
+// Sort bootcamps with specified fields.
 const getBootcamps = asyncHandler(async (req, res, next) => {
     // Advance filtering of queries
         // lte lt (Less than equal , less than)
@@ -18,8 +19,8 @@ const getBootcamps = asyncHandler(async (req, res, next) => {
     // Do not consider certain query params like select as an advance filter
     // copy query params into reqQuery
     const reqQuery = { ... req.query };
-    // Remove query params like select from reqQuery
-    const removeFields = ['select'];
+    // Remove query params like select and sort if present from reqQuery
+    const removeFields = ['select', 'sort'];
     removeFields.forEach(param => delete reqQuery[param]);
 
     let queryStr = JSON.stringify(reqQuery);
@@ -31,6 +32,12 @@ const getBootcamps = asyncHandler(async (req, res, next) => {
         // select fields to be displayed as space separated values {name description email phone}
         const fields = req.query.select.split(',').join(' ');
         query = query.select(fields);
+    }
+    // Sort according to field specified in sort query param
+    // ex. ?sort=name --> sort by name ascending ?sort=-name --> sort by name descending.
+    if(req.query.sort) {
+        const sortBy = req.query.sort.split(',').join(' ');
+        query = query.sort(sortBy);
     }
     const bootcamps = await query;
     res
