@@ -71,28 +71,24 @@ const deleteBootcamp = asyncHandler(async (req, res, next) => {
 // @access  Private
 
 const getBootcampsInRadius = asyncHandler(async (req, res, next) => {
-    console.log('In get bootcamps in radius function....');
     const { zipcode, distance } = req.params;
-    console.log('Zipcode is --- ', zipcode);
-    console.log('distance is ---- ', distance);
 
     // Get latitude and longitude from geocoder
     const loc = await geoCode.geocode(zipcode);
     const lat = loc[0].latitude;
     const lng = loc[0].longitude;
 
-    console.log(`Latitude --- ${lat} and Longitude -- ${lng}`);
     // Calculate the radius by dividing the distance by radius of the earth
         // radius of the earth in miles 3,963 miles in KM 6,378 kms
 
     const radius = distance / 3963;
-    console.log(`Radius --- ${radius}`);
+
     // Find all bootcamps within the radius
 
-    const bootcamps = Bootcamp.find({
+    const bootcamps = await Bootcamp.find({
         location: { $geoWithin: { $centerSphere: [[lng, lat], radius] } }
     });
-    console.log('Bootcamps ----------- ', bootcamps);
+
     res.status(200).json({
         success: true,
         count: bootcamps.length,
