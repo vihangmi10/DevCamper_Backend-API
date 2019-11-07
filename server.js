@@ -5,12 +5,15 @@ const logger = require('./middlewares/logger');
 const errorHandler = require('./middlewares/error');
 // Use 3rd party middleware
 const morgan = require('morgan');
-const colors = require('colors');
-// Import all the routes
+const colors = require('colors'); // use colors to color the console.log prints to mark different things.
 // import database config
 const connection = require('./config/db');
-const bootcamps = require('./routes/bootcamps');
+// Import the env variables before the bootcamp route as bootcamp is using GEOCODE env variables
 dotenv.config({ path: './config/config.env'});
+// Import all the routes
+const bootcamps = require('./routes/bootcamps');
+
+// Connect to Database
 connection();
 const app = express();
 // Add in-built middleware to parse the body
