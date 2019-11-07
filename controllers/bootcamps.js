@@ -6,8 +6,19 @@ const geoCode = require('../utils/geocoder');
 // @desc    Get all the bootcamps
 // @route   GET /api/v1/bootcamps
 // @access  Public
+// @query allowed  ?careers[in]=Business , averageCost[gte]=10000
 const getBootcamps = asyncHandler(async (req, res, next) => {
-    const bootcamps = await Bootcamp.find();
+    // Advance filtering of queries
+        // lte lt (Less than equal , less than)
+        // gt, gte (greater than, greater than equal)
+        // location.city
+    // Getting it from query param;
+    let query;
+    let queryStr = JSON.stringify(req.query);
+    queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`); // attaching a $ sign before gt,gte,lt,lte,in
+    query =  Bootcamp.find(JSON.parse(queryStr)); // Mongo query { $gt: [ "$qty", 250 ] }
+
+    const bootcamps = await query;
     res
         .status(200)
         .json({
