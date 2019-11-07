@@ -123,6 +123,8 @@ BootcampSchema.pre('save', async function(next) {
        zipcode: loc[0].zipcode,
        country: loc[0].countryCode
    };
+   // do not save the address
+    this.address = undefined;
     next();
 });
 
